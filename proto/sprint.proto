@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package sprint;
+
+import "google/protobuf/wrappers.proto";
+import "google/api/annotations.proto";
+
+option go_package = "./.";
+
+service SprintManagement {
+    rpc addSprint(Sprint) returns (google.protobuf.StringValue) {
+        option (google.api.http) = {
+            post: "/v1/sprint"
+            body: "*"
+        };
+    }
+    rpc getSprint(GetSprintRequest) returns (Sprint) {
+        option (google.api.http) = {
+            get: "/v1/sprint/{sprint_id}"
+        };
+    }
+    rpc listSprints(google.protobuf.StringValue) returns (stream Sprint) {
+        option (google.api.http) = {
+            get: "/v1/sprint"
+        };
+    }
+}
+
+message GetSprintRequest{
+    string sprint_id = 1;
+}
+message Sprint{
+    string id = 1;
+    string workspaceId = 2;
+    string description = 3;
+}
