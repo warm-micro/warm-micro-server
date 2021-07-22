@@ -11,7 +11,7 @@ message ApiLog {
     string id = 1;
     string api = 2;
     string status = 3;
-    double time = 4;
+    string time = 4;
 }
 
 message ApiCount {

@@ -50,14 +50,15 @@ func logUnaryServerInterceptor(ctx context.Context, req interface{}, info *grpc.
 	log.Println("===== [Server Interceptor] ", info.FullMethod)
 	startTime := time.Now()
 	m, err := handler(ctx, req)
-	responseTime := time.Now().Sub(startTime)
+	responseTime := time.Now().Sub(startTime).String()
+	log.Println(responseTime)
 	if err != nil {
 		if e, ok := status.FromError(err); ok {
 			log.Println(e.Code())
 			logClient.AddLog(ctx, &pb.ApiLog{
 				Api:    info.FullMethod,
 				Status: e.Code().String(),
-				Time:   float64(responseTime),
+				Time:   responseTime,
 			})
 		} else {
 			log.Printf("not able to parse error returned %v", e)
@@ -66,7 +67,7 @@ func logUnaryServerInterceptor(ctx context.Context, req interface{}, info *grpc.
 		logClient.AddLog(ctx, &pb.ApiLog{
 			Api:    info.FullMethod,
 			Status: "SUCCESS",
-			Time:   float64(responseTime),
+			Time:   responseTime,
 		})
 	}
 	log.Printf("===== [Server Interceptor] : %s", responseTime)

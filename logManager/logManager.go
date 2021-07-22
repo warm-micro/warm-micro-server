@@ -21,7 +21,7 @@ type server struct {
 }
 
 func (s *server) AddLog(ctx context.Context, logReq *pb.ApiLog) (*wrappers.StringValue, error) {
-	log.Printf("Log Added: [%v] %v", logReq.Status, logReq.Api)
+	log.Printf("Log Added: [%v] %v %v", logReq.Status, logReq.Api, logReq.Time)
 	out, err := uuid.NewUUID()
 	if err != nil {
 		log.Fatal(err)
