@@ -13,8 +13,9 @@ import (
 )
 
 const (
-	port        = ":50051"
-	sprint_port = ":50052"
+	port       = ":50051"
+	sprintPort = ":50052"
+	logPort    = ":50060"
 )
 
 type server struct {
@@ -56,20 +57,29 @@ func main() {
 		log.Fatal("failed to register gateway: ", err)
 	}
 
-	sprint_conn, err := grpc.DialContext(
+	sprintConn, err := grpc.DialContext(
 		context.Background(),
-		"0.0.0.0"+sprint_port,
+		"0.0.0.0"+sprintPort,
 		grpc.WithBlock(),
 		grpc.WithInsecure(),
 	)
-
 	if err != nil {
 		log.Fatalln("failed to dial server: ", err)
 	}
+	if err = pb.RegisterSprintManagementHandler(context.Background(), gwmux, sprintConn); err != nil {
+		log.Fatal("failed to register gateway: ", err)
+	}
 
-	err = pb.RegisterSprintManagementHandler(context.Background(), gwmux, sprint_conn)
-
+	logConn, err := grpc.DialContext(
+		context.Background(),
+		"0.0.0.0"+logPort,
+		grpc.WithBlock(),
+		grpc.WithInsecure(),
+	)
 	if err != nil {
+		log.Fatalln("failed to dial server: ", err)
+	}
+	if err = pb.RegisterApiLogMenagementHandler(context.Background(), gwmux, logConn); err != nil {
 		log.Fatal("failed to register gateway: ", err)
 	}
 

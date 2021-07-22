@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package log;
+
+import "google/protobuf/wrappers.proto";
+import "google/api/annotations.proto";
+
+option go_package = "./.";
+
+message ApiLog {
+    string id = 1;
+    string api = 2;
+    string status = 3;
+    double time = 4;
+}
+
+message ApiCount {
+    string api = 1;
+    int32 count =2;
+}
+
+service ApiLogMenagement {
+    rpc addLog(ApiLog) returns (google.protobuf.StringValue);
+    rpc listLogs(google.protobuf.StringValue) returns (stream ApiLog) {
+        option (google.api.http) = {
+            get: "/v1/log"
+        };
+    }
+    rpc listCounts(google.protobuf.StringValue) returns (stream ApiCount) {
+        option (google.api.http) = {
+            get: "/v1/log/count"
+        };
+    }
+}
+
+

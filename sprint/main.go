@@ -10,8 +10,11 @@ import (
 )
 
 const (
-	port = ":50052"
+	port       = ":50052"
+	logAddress = "localhost:50060"
 )
+
+var logClient pb.ApiLogMenagementClient
 
 func main() {
 	initSampleData()
@@ -19,7 +22,17 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to liesten: %v", err)
 	}
-	s := grpc.NewServer()
+	s := grpc.NewServer(
+		grpc.UnaryInterceptor(logUnaryServerInterceptor),
+		grpc.StreamInterceptor(logStreamServerInterceptor),
+	)
+
+	conn, err := grpc.Dial(logAddress, grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("did not connect: %v", err)
+	}
+	defer conn.Close()
+	logClient = pb.NewApiLogMenagementClient(conn)
 
 	pb.RegisterSprintManagementServer(s, &server{})
 	log.Printf("Starting gRPC listner on port " + port)
