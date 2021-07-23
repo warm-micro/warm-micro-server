@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package card;
+
+import "google/protobuf/wrappers.proto";
+import "google/api/annotations.proto";
+
+option go_package = "./.";
+
+message Card{
+    string id = 1;
+    string sprintId = 2;
+    string name = 3;
+    string content = 4;
+    repeated string userId = 5;
+}
+
+message CardId {
+    string value = 1;
+}
+
+message SprintId {
+    string value = 1;
+}
+
+service CardServer {
+    rpc addCard(Card) returns (google.protobuf.StringValue) {
+        option (google.api.http) = {
+            post: "/v1/card"
+            body: "*"
+        };
+    }
+    rpc listCards(SprintId) returns (stream Card) {
+        option (google.api.http) = {
+            get: "/v1/card/{value}"
+        };
+    }
+    rpc removeCard(CardId) returns (google.protobuf.StringValue){
+        option (google.api.http) = {
+            delete: "/v1/card/{value}"
+        };
+    }
+}

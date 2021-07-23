@@ -1,10 +1,11 @@
 package main
 
 import (
-	"context"
+	pb "card/card"
 	"fmt"
+
+	"context"
 	"log"
-	pb "sprint/sprint"
 	"time"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
@@ -14,41 +15,43 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-const sprintBatchSize = 3
+const cardBatchSize = 3
 
-var sprintMap = make(map[string]pb.Sprint)
+var cardMap = make(map[string]pb.Card)
 
 type server struct {
-	sprintMap map[string]*pb.Sprint
-	pb.UnimplementedSprintManagementServer
+	cardMap map[string]*pb.Card
+	pb.UnimplementedCardServerServer
 }
 
-func (s *server) AddSprint(ctx context.Context, sprintReq *pb.Sprint) (*wrappers.StringValue, error) {
-	log.Printf("Sprint Added. ID: %v", sprintReq.Id)
+func (s *server) AddCard(ctx context.Context, cardReq *pb.Card) (*wrappers.StringValue, error) {
+	log.Printf("Card Added. Content: %v", cardReq.SprintId)
 	out, err := uuid.NewUUID()
 	if err != nil {
 		log.Fatal(err)
 	}
-	sprintReq.Id = out.String()
-	sprintMap[sprintReq.Id] = *sprintReq
-	return &wrappers.StringValue{Value: "Sprint Added: " + sprintReq.Id}, nil
+	cardReq.Id = out.String()
+	cardMap[cardReq.Id] = *cardReq
+	return &wrappers.StringValue{Value: "Card Added: " + cardReq.Id}, nil
 }
 
-func (s *server) GetSprint(ctx context.Context, sprintId *wrappers.StringValue) (*pb.Sprint, error) {
-	ord, exists := sprintMap[sprintId.Value]
-	if exists {
-		return &ord, status.New(codes.OK, "").Err()
-	}
-	return nil, status.Errorf(codes.NotFound, "Sprint does not exists. : ", sprintId)
-}
-
-func (s *server) ListSprints(user *wrappers.StringValue, stream pb.SprintManagement_ListSprintsServer) error {
-	for _, sprint := range sprintMap {
-		if err := stream.Send(&sprint); err != nil {
-			return fmt.Errorf("error sending message to stream : %v", err)
+func (s *server) ListCards(sprintId *pb.SprintId, stream pb.CardServer_ListCardsServer) error {
+	for _, card := range cardMap {
+		if card.SprintId == sprintId.Value {
+			if err := stream.Send(&card); err != nil {
+				return fmt.Errorf("error sending message to stream: %v", err)
+			}
 		}
 	}
 	return nil
+}
+
+func RemoveCard(ctx context.Context, cardId *wrappers.StringValue) (*wrappers.StringValue, error) {
+	if _, exists := cardMap[cardId.Value]; exists {
+		delete(cardMap, cardId.Value)
+		return nil, status.New(codes.OK, "").Err()
+	}
+	return nil, status.Errorf(codes.NotFound, "Card does not exists. : %v", cardId.Value)
 }
 
 func logUnaryServerInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {

@@ -15,6 +15,7 @@ import (
 const (
 	port       = ":50051"
 	sprintPort = ":50052"
+	cardPort   = ":50053"
 	logPort    = ":50060"
 )
 
@@ -67,6 +68,19 @@ func main() {
 		log.Fatalln("failed to dial server: ", err)
 	}
 	if err = pb.RegisterSprintManagementHandler(context.Background(), gwmux, sprintConn); err != nil {
+		log.Fatal("failed to register gateway: ", err)
+	}
+
+	cardConn, err := grpc.DialContext(
+		context.Background(),
+		"0.0.0.0"+cardPort,
+		grpc.WithBlock(),
+		grpc.WithInsecure(),
+	)
+	if err != nil {
+		log.Fatalln("failed to dial server: ", err)
+	}
+	if err = pb.RegisterCardServerHandler(context.Background(), gwmux, cardConn); err != nil {
 		log.Fatal("failed to register gateway: ", err)
 	}
 

@@ -13,7 +13,7 @@ import (
 const logBatchSize = 3
 
 var logMap = make(map[string]pb.ApiLog)
-var ApiCount = make(map[string]pb.ApiCount)
+var ApiCount = make(map[string]*pb.ApiCount)
 
 type server struct {
 	logMap map[string]*pb.ApiLog
@@ -32,7 +32,7 @@ func (s *server) AddLog(ctx context.Context, logReq *pb.ApiLog) (*wrappers.Strin
 		apiCount.Count += 1
 	} else {
 		apiCount := pb.ApiCount{Api: logReq.Api, Count: 1}
-		ApiCount[logReq.Api] = apiCount
+		ApiCount[logReq.Api] = &apiCount
 	}
 	return &wrappers.StringValue{Value: "Log Added: " + logReq.Id}, nil
 }
@@ -52,7 +52,7 @@ func (s *server) ListCounts(user *wrappers.StringValue, stream pb.ApiLogMenageme
 	log.Println(user)
 	for key, apiCount := range ApiCount {
 		log.Print(key, apiCount)
-		if err := stream.Send(&apiCount); err != nil {
+		if err := stream.Send(apiCount); err != nil {
 			return fmt.Errorf("eeror sending meessage to stream: %v", err)
 		}
 	}
