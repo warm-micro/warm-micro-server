@@ -1,1 +1,3 @@
 bin/
+secret.json
+config.go

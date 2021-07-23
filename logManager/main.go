@@ -6,12 +6,17 @@ import (
 
 	"google.golang.org/grpc"
 
+	"logManager/db"
 	pb "logManager/logManager"
 )
 
 const (
 	port = ":50060"
 )
+
+func init() {
+	db.Connect()
+}
 
 func main() {
 	lis, err := net.Listen("tcp", port)

@@ -24,6 +24,7 @@ service SprintManagement {
             get: "/v1/sprint"
         };
     }
+    rpc checkSprint(GetSprintRequest) returns (google.protobuf.BoolValue) {};
 }
 
 message GetSprintRequest{
