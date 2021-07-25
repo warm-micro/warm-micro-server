@@ -34,12 +34,18 @@ func (s *server) AddSprint(ctx context.Context, sprintReq *pb.Sprint) (*wrappers
 	return &wrappers.StringValue{Value: "Sprint Added: " + sprintReq.Id}, nil
 }
 
-func (s *server) GetSprint(ctx context.Context, sprintId *wrappers.StringValue) (*pb.Sprint, error) {
-	ord, exists := sprintMap[sprintId.Value]
+func (s *server) GetSprint(ctx context.Context, sprintReq *pb.GetSprintRequest) (*pb.Sprint, error) {
+	ord, exists := sprintMap[sprintReq.SprintId]
 	if exists {
 		return &ord, status.New(codes.OK, "").Err()
 	}
-	return nil, status.Errorf(codes.NotFound, "Sprint does not exists. : ", sprintId)
+	return nil, status.Errorf(codes.NotFound, "Sprint does not exists. : ", sprintReq.SprintId)
+}
+
+func (s *server) CheckSprint(ctx context.Context, sprintReq *pb.GetSprintRequest) (*wrappers.BoolValue, error) {
+	_, exists := sprintMap[sprintReq.SprintId]
+
+	return &wrappers.BoolValue{Value: exists}, status.New(codes.OK, "").Err()
 }
 
 func (s *server) ListSprints(user *wrappers.StringValue, stream pb.SprintManagement_ListSprintsServer) error {

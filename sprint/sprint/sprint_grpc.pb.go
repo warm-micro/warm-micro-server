@@ -20,8 +20,9 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SprintManagementClient interface {
 	AddSprint(ctx context.Context, in *Sprint, opts ...grpc.CallOption) (*wrapperspb.StringValue, error)
-	GetSprint(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*Sprint, error)
+	GetSprint(ctx context.Context, in *GetSprintRequest, opts ...grpc.CallOption) (*Sprint, error)
 	ListSprints(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (SprintManagement_ListSprintsClient, error)
+	CheckSprint(ctx context.Context, in *GetSprintRequest, opts ...grpc.CallOption) (*wrapperspb.BoolValue, error)
 }
 
 type sprintManagementClient struct {
@@ -41,7 +42,7 @@ func (c *sprintManagementClient) AddSprint(ctx context.Context, in *Sprint, opts
 	return out, nil
 }
 
-func (c *sprintManagementClient) GetSprint(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*Sprint, error) {
+func (c *sprintManagementClient) GetSprint(ctx context.Context, in *GetSprintRequest, opts ...grpc.CallOption) (*Sprint, error) {
 	out := new(Sprint)
 	err := c.cc.Invoke(ctx, "/sprint.SprintManagement/getSprint", in, out, opts...)
 	if err != nil {
@@ -82,13 +83,23 @@ func (x *sprintManagementListSprintsClient) Recv() (*Sprint, error) {
 	return m, nil
 }
 
+func (c *sprintManagementClient) CheckSprint(ctx context.Context, in *GetSprintRequest, opts ...grpc.CallOption) (*wrapperspb.BoolValue, error) {
+	out := new(wrapperspb.BoolValue)
+	err := c.cc.Invoke(ctx, "/sprint.SprintManagement/checkSprint", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SprintManagementServer is the server API for SprintManagement service.
 // All implementations must embed UnimplementedSprintManagementServer
 // for forward compatibility
 type SprintManagementServer interface {
 	AddSprint(context.Context, *Sprint) (*wrapperspb.StringValue, error)
-	GetSprint(context.Context, *wrapperspb.StringValue) (*Sprint, error)
+	GetSprint(context.Context, *GetSprintRequest) (*Sprint, error)
 	ListSprints(*wrapperspb.StringValue, SprintManagement_ListSprintsServer) error
+	CheckSprint(context.Context, *GetSprintRequest) (*wrapperspb.BoolValue, error)
 	mustEmbedUnimplementedSprintManagementServer()
 }
 
@@ -99,11 +110,14 @@ type UnimplementedSprintManagementServer struct {
 func (UnimplementedSprintManagementServer) AddSprint(context.Context, *Sprint) (*wrapperspb.StringValue, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddSprint not implemented")
 }
-func (UnimplementedSprintManagementServer) GetSprint(context.Context, *wrapperspb.StringValue) (*Sprint, error) {
+func (UnimplementedSprintManagementServer) GetSprint(context.Context, *GetSprintRequest) (*Sprint, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSprint not implemented")
 }
 func (UnimplementedSprintManagementServer) ListSprints(*wrapperspb.StringValue, SprintManagement_ListSprintsServer) error {
 	return status.Errorf(codes.Unimplemented, "method ListSprints not implemented")
+}
+func (UnimplementedSprintManagementServer) CheckSprint(context.Context, *GetSprintRequest) (*wrapperspb.BoolValue, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckSprint not implemented")
 }
 func (UnimplementedSprintManagementServer) mustEmbedUnimplementedSprintManagementServer() {}
 
@@ -137,7 +151,7 @@ func _SprintManagement_AddSprint_Handler(srv interface{}, ctx context.Context, d
 }
 
 func _SprintManagement_GetSprint_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(wrapperspb.StringValue)
+	in := new(GetSprintRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -149,7 +163,7 @@ func _SprintManagement_GetSprint_Handler(srv interface{}, ctx context.Context, d
 		FullMethod: "/sprint.SprintManagement/getSprint",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SprintManagementServer).GetSprint(ctx, req.(*wrapperspb.StringValue))
+		return srv.(SprintManagementServer).GetSprint(ctx, req.(*GetSprintRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -175,6 +189,24 @@ func (x *sprintManagementListSprintsServer) Send(m *Sprint) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+func _SprintManagement_CheckSprint_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSprintRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SprintManagementServer).CheckSprint(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/sprint.SprintManagement/checkSprint",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SprintManagementServer).CheckSprint(ctx, req.(*GetSprintRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // SprintManagement_ServiceDesc is the grpc.ServiceDesc for SprintManagement service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -189,6 +221,10 @@ var SprintManagement_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "getSprint",
 			Handler:    _SprintManagement_GetSprint_Handler,
+		},
+		{
+			MethodName: "checkSprint",
+			Handler:    _SprintManagement_CheckSprint_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
