@@ -15,6 +15,10 @@ const (
 
 var logClient pb.ApiLogMenagementClient
 
+func init() {
+	initSampleData()
+}
+
 func main() {
 	lis, err := net.Listen("tcp", port)
 	if err != nil {
@@ -31,8 +35,15 @@ func main() {
 	defer logConn.Close()
 	logClient = pb.NewApiLogMenagementClient(logConn)
 
+	pb.RegisterWorkspaceManagerServer(s, &server{})
 	log.Println("Starting gRPC listener on port " + port)
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
+
+}
+
+func initSampleData() {
+	workspaceMap["1001"] = pb.Workspace{Id: "1001", Name: "WM"}
+	workspaceMap["1002"] = pb.Workspace{Id: "1002", Name: "PNU"}
 }

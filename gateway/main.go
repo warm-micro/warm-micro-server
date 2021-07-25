@@ -13,10 +13,11 @@ import (
 )
 
 const (
-	port       = ":50051"
-	sprintPort = ":50052"
-	cardPort   = ":50053"
-	logPort    = ":50060"
+	port          = ":50051"
+	sprintPort    = ":50052"
+	cardPort      = ":50053"
+	workspaceProt = ":50054"
+	logPort       = ":50060"
 )
 
 type server struct {
@@ -81,6 +82,19 @@ func main() {
 		log.Fatalln("failed to dial server: ", err)
 	}
 	if err = pb.RegisterCardServerHandler(context.Background(), gwmux, cardConn); err != nil {
+		log.Fatal("failed to register gateway: ", err)
+	}
+
+	workspaceConn, err := grpc.DialContext(
+		context.Background(),
+		"0.0.0.0"+workspaceProt,
+		grpc.WithBlock(),
+		grpc.WithInsecure(),
+	)
+	if err != nil {
+		log.Fatalln("failed to dial server: ", err)
+	}
+	if err = pb.RegisterWorkspaceManagerHandler(context.Background(), gwmux, workspaceConn); err != nil {
 		log.Fatal("failed to register gateway: ", err)
 	}
 

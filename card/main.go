@@ -43,6 +43,7 @@ func main() {
 	}
 	defer sprintConn.Close()
 	sprintClient = pb.NewSprintManagementClient(sprintConn)
+
 	pb.RegisterCardServerServer(s, &server{})
 	log.Println("Starting gRPC listenr on port " + port)
 	if err := s.Serve(lis); err != nil {

@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package workspace;
+
+import "google/protobuf/wrappers.proto";
+import "google/api/annotations.proto";
+
+option go_package = "./.";
+
+message Workspace {
+    string id = 1;
+    string name = 2;
+}
+
+message WorkspaceReq {
+    string id = 1;
+}
+
+service WorkspaceManager{
+    rpc addWorkspace(Workspace) returns (google.protobuf.StringValue){
+        option (google.api.http) = {
+            post: "/v1/workspace"
+            body: "*"
+        };
+    }
+    rpc listWorkspace(google.protobuf.StringValue) returns (stream Workspace){
+        option (google.api.http) = {
+            get: "/v1/workspace"
+        };
+    }
+    rpc removeWorkspace(WorkspaceReq) returns (google.protobuf.StringValue) {
+        option (google.api.http) = {
+            delete: "/v1/workspace/{id}"
+        };
+    }
+}
