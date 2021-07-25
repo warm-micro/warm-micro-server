@@ -19,5 +19,5 @@ func Connect() {
 	}
 	DB = db
 
-	db.AutoMigrate(&ApiLog{})
+	db.AutoMigrate(&ApiLog{}, &ApiCount{})
 }

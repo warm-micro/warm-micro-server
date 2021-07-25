@@ -9,14 +9,19 @@ import (
 )
 
 const (
-	port       = ":50053"
-	logAddress = "localhost:50060"
+	port          = ":50053"
+	logAddress    = "localhost:50060"
+	sprintAddress = "localhost:50052"
 )
 
 var logClient pb.ApiLogMenagementClient
+var sprintClient pb.SprintManagementClient
+
+func init() {
+	initSampleData()
+}
 
 func main() {
-	initSampleData()
 	lis, err := net.Listen("tcp", port)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
@@ -25,14 +30,19 @@ func main() {
 		grpc.UnaryInterceptor(logUnaryServerInterceptor),
 		grpc.StreamInterceptor(logStreamServerInterceptor),
 	)
-
-	conn, err := grpc.Dial(logAddress, grpc.WithInsecure())
+	logConn, err := grpc.Dial(logAddress, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
-	defer conn.Close()
-	logClient = pb.NewApiLogMenagementClient(conn)
+	defer logConn.Close()
+	logClient = pb.NewApiLogMenagementClient(logConn)
 
+	sprintConn, err := grpc.Dial(sprintAddress, grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("did not connect: %v", err)
+	}
+	defer sprintConn.Close()
+	sprintClient = pb.NewSprintManagementClient(sprintConn)
 	pb.RegisterCardServerServer(s, &server{})
 	log.Println("Starting gRPC listenr on port " + port)
 	if err := s.Serve(lis); err != nil {

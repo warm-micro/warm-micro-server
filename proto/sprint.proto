@@ -30,6 +30,7 @@ service SprintManagement {
 message GetSprintRequest{
     string sprint_id = 1;
 }
+
 message Sprint{
     string id = 1;
     string workspaceId = 2;

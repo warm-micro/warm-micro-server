@@ -40,6 +40,14 @@ func (s *server) AddLog(ctx context.Context, logReq *pb.ApiLog) (*wrappers.Strin
 		Time:   logReq.Time,
 	}
 	db.DB.Create(&apiLog)
+	var apiCount db.ApiCount
+	if err := db.DB.Where("api = ?", apiLog.Api).First(&apiCount).Error; err != nil {
+		db.DB.Create(&db.ApiCount{Api: apiLog.Api, Count: 1})
+	} else {
+		apiCount.Count += 1
+		db.DB.Save(&apiCount)
+	}
+	log.Println(apiCount)
 	return &wrappers.StringValue{Value: "Log Added: " + logReq.Id}, nil
 }
 

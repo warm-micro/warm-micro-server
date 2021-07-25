@@ -26,6 +26,9 @@ type server struct {
 
 func (s *server) AddCard(ctx context.Context, cardReq *pb.Card) (*wrappers.StringValue, error) {
 	log.Printf("Card Added. Content: %v", cardReq.SprintId)
+	if ok, err := sprintClient.CheckSprint(ctx, &pb.GetSprintRequest{SprintId: cardReq.SprintId}); err != nil || !ok.Value {
+		return &wrappers.StringValue{Value: "Wrong Sprint Id: " + cardReq.SprintId}, grpc.Errorf(codes.NotFound, "wrong sprint id")
+	}
 
 	out, err := uuid.NewUUID()
 	if err != nil {
