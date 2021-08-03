@@ -10,7 +10,7 @@ import (
 
 const (
 	port       = ":50054"
-	logAddress = "localhost:50060"
+	logAddress = "127.0.0.1:50060"
 )
 
 var logClient pb.ApiLogMenagementClient

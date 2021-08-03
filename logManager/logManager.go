@@ -73,10 +73,18 @@ func (s *server) ListLogs(user *wrappers.StringValue, stream pb.ApiLogMenagement
 
 func (s *server) ListCounts(user *wrappers.StringValue, stream pb.ApiLogMenagement_ListCountsServer) error {
 	log.Println(user)
-	for key, apiCount := range ApiCount {
-		log.Print(key, apiCount)
-		if err := stream.Send(apiCount); err != nil {
-			return fmt.Errorf("eeror sending meessage to stream: %v", err)
+	// for key, apiCount := range ApiCount {
+	// 	log.Print(key, apiCount)
+	// 	if err := stream.Send(apiCount); err != nil {
+	// 		return fmt.Errorf("eeror sending meessage to stream: %v", err)
+	// 	}
+	// }
+	var apiCounts []db.ApiCount
+	db.DB.Find(&apiCounts)
+	for _, apiCount := range apiCounts {
+		log.Println(apiCount)
+		if err := stream.Send(&pb.ApiCount{Api: apiCount.Api, Count: int32(apiCount.Count)}); err != nil {
+			return fmt.Errorf("error sending message to stream: %v", err)
 		}
 	}
 	return nil

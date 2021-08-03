@@ -10,8 +10,8 @@ import (
 
 const (
 	port          = ":50053"
-	logAddress    = "localhost:50060"
-	sprintAddress = "localhost:50052"
+	logAddress    = "127.0.0.1:50060"
+	sprintAddress = "127.0.0.1:50052"
 )
 
 var logClient pb.ApiLogMenagementClient
@@ -45,7 +45,7 @@ func main() {
 	sprintClient = pb.NewSprintManagementClient(sprintConn)
 
 	pb.RegisterCardServerServer(s, &server{})
-	log.Println("Starting gRPC listenr on port " + port)
+	log.Println("Starting gRPC listener on port " + port)
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}

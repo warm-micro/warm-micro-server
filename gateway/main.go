@@ -38,14 +38,14 @@ func main() {
 
 	s := grpc.NewServer()
 	pb.RegisterGateWayServer(s, &server{})
-	log.Println("Serving gRPC on 0.0.0.0" + port)
+	log.Println("Serving gRPC on 127.0.0.1" + port)
 	go func() {
 		log.Fatalln(s.Serve(lis))
 	}()
 
 	test_conn, err := grpc.DialContext(
 		context.Background(),
-		"0.0.0.0"+port,
+		"127.0.0.1"+port,
 		grpc.WithBlock(),
 		grpc.WithInsecure(),
 	)
@@ -61,7 +61,7 @@ func main() {
 
 	sprintConn, err := grpc.DialContext(
 		context.Background(),
-		"0.0.0.0"+sprintPort,
+		"127.0.0.1"+sprintPort,
 		grpc.WithBlock(),
 		grpc.WithInsecure(),
 	)
@@ -74,7 +74,7 @@ func main() {
 
 	cardConn, err := grpc.DialContext(
 		context.Background(),
-		"0.0.0.0"+cardPort,
+		"127.0.0.1"+cardPort,
 		grpc.WithBlock(),
 		grpc.WithInsecure(),
 	)
@@ -87,7 +87,7 @@ func main() {
 
 	workspaceConn, err := grpc.DialContext(
 		context.Background(),
-		"0.0.0.0"+workspaceProt,
+		"127.0.0.1"+workspaceProt,
 		grpc.WithBlock(),
 		grpc.WithInsecure(),
 	)
@@ -100,7 +100,7 @@ func main() {
 
 	logConn, err := grpc.DialContext(
 		context.Background(),
-		"0.0.0.0"+logPort,
+		"127.0.0.1"+logPort,
 		grpc.WithBlock(),
 		grpc.WithInsecure(),
 	)
@@ -116,6 +116,6 @@ func main() {
 		Handler: gwmux,
 	}
 
-	log.Println("Serving gRPC-Gateway on http://0.0.0.0:8080")
+	log.Println("Serving gRPC-Gateway on http://127.0.0.1:8080")
 	log.Fatalln(gwServer.ListenAndServe())
 }

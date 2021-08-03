@@ -10,6 +10,7 @@ import (
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/google/uuid"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
@@ -39,6 +40,14 @@ func (s *server) ListWorkspace(user *wrappers.StringValue, stream pb.WorkspaceMa
 		}
 	}
 	return nil
+}
+
+func RemoveWorkspace(ctx context.Context, workspaceReq *pb.WorkspaceReq) (*wrappers.StringValue, error) {
+	if _, exists := workspaceMap[workspaceReq.Id]; exists {
+		delete(workspaceMap, workspaceReq.Id)
+		return nil, status.New(codes.OK, "").Err()
+	}
+	return nil, status.Errorf(codes.NotFound, "Workspace does not exists. : %v", workspaceReq.Id)
 }
 
 func logUnaryServerInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {

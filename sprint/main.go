@@ -11,7 +11,7 @@ import (
 
 const (
 	port       = ":50052"
-	logAddress = "localhost:50060"
+	logAddress = "127.0.0.1:50060"
 )
 
 var logClient pb.ApiLogMenagementClient
@@ -35,7 +35,7 @@ func main() {
 	logClient = pb.NewApiLogMenagementClient(conn)
 
 	pb.RegisterSprintManagementServer(s, &server{})
-	log.Printf("Starting gRPC listner on port " + port)
+	log.Printf("Starting gRPC listener on port " + port)
 	// reflection.Register(s)
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)

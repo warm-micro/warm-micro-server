@@ -44,7 +44,6 @@ func (s *server) GetSprint(ctx context.Context, sprintReq *pb.GetSprintRequest) 
 
 func (s *server) CheckSprint(ctx context.Context, sprintReq *pb.GetSprintRequest) (*wrappers.BoolValue, error) {
 	_, exists := sprintMap[sprintReq.SprintId]
-	log.Println(exists)
 	return &wrappers.BoolValue{Value: exists}, status.New(codes.OK, "").Err()
 }
 

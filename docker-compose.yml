@@ -1,0 +1,57 @@
+version: '3.9'
+services: 
+    # nginx:
+    #     image: nginx:latest
+    #     container_name: nginx
+    #     ports:
+    #         - "80:80"
+    #     volumes: 
+    #         - ./config/nginx.conf:/etc/nginx/nginx.conf
+    #     restart: "unless-stopped"
+    gateway: 
+        image: zzzinho/wm-gateway
+        container_name: gateway
+        ports: 
+            - "8080:8080"
+        restart: "unless-stopped"
+        depends_on: 
+            - sprint
+            - card
+            - workspace
+            - logger
+        links: 
+            - sprint
+            - card
+            - workspace
+            - logger
+    sprint:
+        image: zzzinho/wm-sprint
+        container_name: sprint
+        # ports:
+        #     - "50052:50052"
+        expose: 
+            - "50052"
+        restart: "unless-stopped"
+    card:
+        image: zzzinho/wm-card
+        container_name: card
+        # ports: 
+        #     - "50053:50053"
+        expose: 
+            - "50053"
+        restart: "unless-stopped"
+    workspace:
+        image: zzzinho/wm-workspace
+        container_name: workspace
+        # ports: 
+        #     - "50054:50054"
+        expose: 
+            - "50054"
+        restart: "unless-stopped"
+    logger:
+        image: zzzinho/wm-log
+        container_name: logger
+        expose: 
+            - "50060"
+        restart: "unless-stopped"
+        
